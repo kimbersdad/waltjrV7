@@ -1,50 +1,36 @@
 const express = require("express");
-const path = require("path");
+const cors = require("cors");
 const { OpenAI } = require("openai");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 3000;
-
+app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); // Serve quote.html + quote.js
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-// 🧠 Chat route
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
+  if (!message) return res.status(400).json({ error: "No message provided" });
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content: "You are Walt Jr., an expert signage quoting assistant. Ask questions and give pricing logic."
-        },
-        {
-          role: "user",
-          content: message
-        }
+        { role: "system", content: "You are Walt Jr., an AI that helps people generate custom sign quotes." },
+        { role: "user", content: message }
       ]
     });
 
-    const reply = response.choices[0].message.content;
-    res.json({ reply });
+    res.json({ reply: completion.choices[0].message.content });
   } catch (err) {
-    console.error("OpenAI error:", err);
-    res.status(500).json({ reply: "❌ Error getting response from Walt Jr." });
+    console.error("GPT error:", err);
+    res.status(500).json({ error: "OpenAI error", details: err.message });
   }
 });
 
-// ✅ Health check route
-app.get("/", (req, res) => {
-  res.send("✅ Walt Jr. is alive");
-});
-
-app.listen(port, () => {
-  console.log(`✅ Walt Jr. backend running at http://localhost:${port}`);
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
