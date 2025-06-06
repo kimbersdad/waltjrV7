@@ -14,32 +14,38 @@ window.addEventListener("load", () => {
     loginBox.style.display = "flex";
   };
 
-  // Check if user is logged in (after Outseta has fully loaded)
-  Outseta.getUser()
-    .then(user => user ? showChat() : showLogin())
-    .catch(showLogin);
+  // Check login state after Outseta is loaded
+  if (window.Outseta && Outseta.getUser) {
+    Outseta.getUser()
+      .then(user => user ? showChat() : showLogin())
+      .catch(showLogin);
 
-  // Listen for login/logout state changes
-  Outseta.on("accessToken.set", showChat);
-  Outseta.on("accessToken.removed", showLogin);
+    Outseta.on("accessToken.set", showChat);
+    Outseta.on("accessToken.removed", showLogin);
+  } else {
+    showLogin();
+  }
 
-  // Handle login button click
+  // Login button
   loginBtn?.addEventListener("click", () => {
     if (window.Outseta && typeof Outseta.toggleLogin === "function") {
       Outseta.toggleLogin();
     } else {
-      // Fallback redirect if widget isn’t loaded
-      window.location.href = "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
+      // Fallback: full redirect
+      window.location.href =
+        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
     }
   });
 
-  // Handle logout
+  // Logout button
   logoutBtn?.addEventListener("click", () => {
-    Outseta.logout();
+    if (window.Outseta && typeof Outseta.logout === "function") {
+      Outseta.logout();
+    }
   });
 });
 
-// GPT + Make integration
+// Send quote to backend
 async function sendQuote() {
   const input = document.getElementById("userInput").value;
   if (!input.trim()) return alert("Please enter a message.");
@@ -55,7 +61,6 @@ async function sendQuote() {
     message: input
   };
 
-  // Send to GPT backend
   const res = await fetch("https://waltjrv7.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -65,7 +70,7 @@ async function sendQuote() {
   const data = await res.json();
   document.getElementById("response").textContent = data.reply;
 
-  // Optional: forward to Make.com webhook
+  // Optional: forward to Make webhook
   await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
