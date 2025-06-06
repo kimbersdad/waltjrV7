@@ -2,27 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Request a Quote</title>
-  <!-- Outseta Script Options -->
+  <title>Walt Jr. Quote Request</title>
+
+  <!-- Outseta Config (Must Be Before Script) -->
   <script>
-    var o_options = {
-      domain: 'waltjr.outseta.com',
-      load: 'auth,profile',
-      auth: {
-        authenticationCallbackUrl: window.location.href
-      }
-    };
+    var o_options = { domain: "waltjr.outseta.com" };
   </script>
-  <!-- Outseta Script -->
   <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
-  <!-- Custom Script -->
-  <script src="quote.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+
+    #login-container, #chat-container {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      font-size: 1rem;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #dc3545;
+    }
+
+    #response {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      max-width: 600px;
+    }
+  </style>
 </head>
 <body>
-  <div id="quote-section">
-    <h1>Request a Quote</h1>
-    <textarea id="quote-input" placeholder="Enter your request here..."></textarea><br/>
-    <button id="send-quote">Send</button>
+
+  <!-- Login UI -->
+  <div id="login-container">
+    <button id="login-btn">Log in to request a quote</button>
   </div>
+
+  <!-- Chat UI -->
+  <div id="chat-container">
+    <button id="logout-btn">Logout</button>
+    <h2>Request a Quote</h2>
+    <textarea id="userInput" rows="4" placeholder="Describe your sign project..."></textarea>
+    <button onclick="sendQuote()">Send</button>
+    <pre id="response"></pre>
+  </div>
+
+  <script src="quote.js?v=100"></script>
 </body>
 </html>
