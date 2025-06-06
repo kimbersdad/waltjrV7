@@ -1,80 +1,40 @@
-window.addEventListener("load", () => {
-  const loginBox = document.getElementById("login-container");
-  const chatBox = document.getElementById("chat-container");
-  const loginBtn = document.getElementById("login-btn");
-  const logoutBtn = document.getElementById("logout-btn");
+document.addEventListener('DOMContentLoaded', function () {
+  const sendButton = document.getElementById('send-quote');
+  const quoteInput = document.getElementById('quote-input');
 
-  const showChat = () => {
-    chatBox.style.display = "block";
-    loginBox.style.display = "none";
-  };
+  sendButton.addEventListener('click', async () => {
+    const message = quoteInput.value.trim();
+    if (!message) {
+      alert('Please enter a message.');
+      return;
+    }
 
-  const showLogin = () => {
-    chatBox.style.display = "none";
-    loginBox.style.display = "flex";
-  };
+    try {
+      const token = Outseta.getAccessToken();
+      if (!token) {
+        alert('You must be logged in to send a quote request.');
+        return;
+      }
 
-  // Wait for Outseta to load, then check login status
-  if (window.Outseta && Outseta.getUser) {
-    Outseta.getUser()
-      .then(user => user ? showChat() : showLogin())
-      .catch(showLogin);
+      const response = await fetch('https://your-backend-endpoint.com/api/quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ message })
+      });
 
-    Outseta.on("accessToken.set", showChat);
-    Outseta.on("accessToken.removed", showLogin);
-  } else {
-    showLogin();
-  }
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-  // Login button
-  loginBtn?.addEventListener("click", () => {
-    if (window.Outseta && typeof Outseta.toggleLogin === "function") {
-      Outseta.toggleLogin();
-    } else {
-      window.location.href =
-        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
+      const result = await response.json();
+      alert('Quote request sent successfully!');
+      quoteInput.value = '';
+    } catch (error) {
+      console.error('Error sending quote request:', error);
+      alert('There was an error sending your quote request.');
     }
   });
-
-  // Logout button with redirect to login screen
-  logoutBtn?.addEventListener("click", () => {
-    Outseta.logout().then(() => {
-      // Redirect after logout
-      window.location.href =
-        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
-    });
-  });
 });
-
-// Send quote to backend and Make webhook
-async function sendQuote() {
-  const input = document.getElementById("userInput").value;
-  if (!input.trim()) return alert("Please enter a message.");
-
-  const user = await Outseta.getUser();
-  if (!user) return alert("You must be logged in.");
-
-  const payload = {
-    person_uid: user.Uid,
-    email: user.Email,
-    account_uid: user.AccountUid,
-    company_name: user.Account?.Name || "",
-    message: input
-  };
-
-  const res = await fetch("https://waltjrv7.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await res.json();
-  document.getElementById("response").textContent = data.reply;
-
-  // Optional: send to Make.com
-  await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, gpt_reply: data.reply })
-  });
-}
