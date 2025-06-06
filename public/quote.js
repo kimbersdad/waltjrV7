@@ -53,19 +53,38 @@ async function sendQuote() {
     message: input
   };
 
-  const res = await fetch("https://waltjrv7.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  console.log("📤 Sending payload:", payload);
 
-  const data = await res.json();
-  document.getElementById("response").textContent = data.reply;
+  try {
+    const res = await fetch("https://waltjrv7.onrender.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-  // Optional: Send to Make webhook
-  await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, gpt_reply: data.reply })
-  });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Backend error: ${res.status} - ${errorText}`);
+    }
+
+    const data = await res.json();
+    console.log("🤖 GPT response:", data);
+
+    if (data.reply) {
+      document.getElementById("response").textContent = data.reply;
+    } else {
+      document.getElementById("response").textContent = "No reply received.";
+    }
+
+    // Optional: forward to Make webhook
+    await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, gpt_reply: data.reply })
+    });
+
+  } catch (err) {
+    console.error("❌ Error in sendQuote:", err);
+    document.getElementById("response").textContent = "Error sending quote. Check console.";
+  }
 }
