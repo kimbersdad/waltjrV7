@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Walt Jr. Quote Chatbot</title>
 
-  <!-- Load Outseta script FIRST -->
+  <!-- ✅ Load Outseta script first -->
   <script src="https://cdn.outseta.com/outseta.min.js" data-domain="waltjr.outseta.com"></script>
 
   <style>
@@ -23,26 +23,39 @@
       top: 1rem;
       right: 1rem;
     }
+    #chat-box {
+      padding: 1rem;
+      max-width: 600px;
+    }
+    textarea {
+      width: 100%;
+      font-size: 1rem;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Login Gate -->
+  <!-- 🔐 Login prompt -->
   <div id="login-container" class="centered">
     <button id="login-btn" class="btn-primary">Log in to request a quote</button>
   </div>
 
-  <!-- Chat UI -->
+  <!-- 💬 Chat UI (only shows if logged in) -->
   <div id="chat-container" style="display: none;">
     <button id="logout-btn" class="logout">Logout</button>
     <div id="chat-box">
-      <!-- Add your chat UI here -->
-      <textarea id="userInput" rows="4" cols="50" placeholder="Type your quote request..."></textarea><br>
+      <textarea id="userInput" rows="4" placeholder="Describe your sign project..."></textarea><br><br>
       <button onclick="sendQuote()">Send</button>
       <pre id="response"></pre>
     </div>
   </div>
 
-  <script src="quote.js?v=1"></script>
+  <!-- ✅ Load logic last -->
+  <script src="quote.js?v=13"></script>
 </body>
 </html>
