@@ -4,10 +4,16 @@
   <meta charset="UTF-8">
   <title>Walt Jr. Quote Chatbot</title>
 
-  <!-- ✅ Load Outseta script first -->
-  <script src="https://cdn.outseta.com/outseta.min.js" data-domain="waltjr.outseta.com"></script>
+  <!-- ✅ Load Outseta via bulletproof method -->
+  <script>
+    var o_options = { domain: "waltjr.outseta.com" };
+  </script>
+  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
 
   <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
     .centered {
       display: flex;
       justify-content: center;
@@ -17,6 +23,7 @@
     .btn-primary {
       padding: 0.75rem 1.5rem;
       font-size: 1.1rem;
+      cursor: pointer;
     }
     .logout {
       position: absolute;
@@ -45,7 +52,7 @@
     <button id="login-btn" class="btn-primary">Log in to request a quote</button>
   </div>
 
-  <!-- 💬 Chat UI (only shows if logged in) -->
+  <!-- 💬 Chat UI (shown after login) -->
   <div id="chat-container" style="display: none;">
     <button id="logout-btn" class="logout">Logout</button>
     <div id="chat-box">
@@ -55,7 +62,7 @@
     </div>
   </div>
 
-  <!-- ✅ Load logic last -->
-  <script src="quote.js?v=13"></script>
+  <!-- ✅ Load logic after Outseta -->
+  <script src="quote.js?v=15"></script>
 </body>
 </html>
