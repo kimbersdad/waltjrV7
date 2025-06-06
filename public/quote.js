@@ -14,7 +14,7 @@ window.addEventListener("load", () => {
     loginBox.style.display = "flex";
   };
 
-  // Check login state after Outseta is loaded
+  // Wait for Outseta to load, then check login status
   if (window.Outseta && Outseta.getUser) {
     Outseta.getUser()
       .then(user => user ? showChat() : showLogin())
@@ -31,21 +31,22 @@ window.addEventListener("load", () => {
     if (window.Outseta && typeof Outseta.toggleLogin === "function") {
       Outseta.toggleLogin();
     } else {
-      // Fallback: full redirect
       window.location.href =
         "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
     }
   });
 
-  // Logout button
+  // Logout button with redirect to login screen
   logoutBtn?.addEventListener("click", () => {
-    if (window.Outseta && typeof Outseta.logout === "function") {
-      Outseta.logout();
-    }
+    Outseta.logout().then(() => {
+      // Redirect after logout
+      window.location.href =
+        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
+    });
   });
 });
 
-// Send quote to backend
+// Send quote to backend and Make webhook
 async function sendQuote() {
   const input = document.getElementById("userInput").value;
   if (!input.trim()) return alert("Please enter a message.");
@@ -70,7 +71,7 @@ async function sendQuote() {
   const data = await res.json();
   document.getElementById("response").textContent = data.reply;
 
-  // Optional: forward to Make webhook
+  // Optional: send to Make.com
   await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
