@@ -22,16 +22,17 @@ async function handleInput() {
       body: JSON.stringify({ message: value })
     });
 
-    const data = await res.json();
-    addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
+    const text = await res.text();
+    console.log("✅ Webhook response:", text);
+
+    addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
 
   } catch (err) {
-    console.error("❌ Make webhook error:", err);
-    addMessage("❌ Sorry, there was a problem connecting to Walt Jr.", "bot");
+    console.error("❌ Webhook error:", err);
+    addMessage("❌ Something went wrong connecting to Walt Jr.", "bot");
   }
 }
 
-// Allow Enter key to trigger send
 document.addEventListener("DOMContentLoaded", () => {
   const inputBox = document.getElementById("userInput");
   inputBox.addEventListener("keypress", function(event) {
@@ -41,6 +42,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Initial greeting (optional)
   addMessage("Hi, this is Walt Jr. Your favorite estimating tool! How can I help you today?", "bot");
 });
