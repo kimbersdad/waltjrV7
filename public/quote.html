@@ -2,19 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Walt Jr. Quote Request</title>
-
-  <script>
-    var o_options = { domain: "waltjr.outseta.com" };
-  </script>
-  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
+  <title>Walt Jr. Quote Chatbot</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background: #f9f9f9;
     }
 
     #login-container, #chat-container {
@@ -23,59 +17,39 @@
       align-items: center;
       height: 100vh;
       flex-direction: column;
-      text-align: center;
-    }
-
-    textarea {
-      width: 100%;
-      max-width: 600px;
-      font-size: 1rem;
-      padding: 10px;
-      margin-bottom: 10px;
     }
 
     button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
+      padding: 1rem;
+      font-size: 1.2rem;
       cursor: pointer;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #logout-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: #dc3545;
-    }
-
-    #response {
-      margin-top: 20px;
-      white-space: pre-wrap;
-      max-width: 600px;
     }
   </style>
+
+  <!-- Outseta load -->
+  <script>
+    var o_options = { domain: "waltjr.outseta.com" };
+  </script>
+  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
 </head>
 <body>
 
+  <!-- Login UI -->
   <div id="login-container">
+    <h2>Please Log In</h2>
     <button id="login-btn">Log in to request a quote</button>
   </div>
 
+  <!-- Chat UI -->
   <div id="chat-container">
     <button id="logout-btn">Logout</button>
-    <h2>Request a Quote</h2>
-    <textarea id="userInput" rows="4" placeholder="Describe your sign project..."></textarea>
+    <h2>Chat Mode</h2>
+    <textarea id="userInput" rows="4" cols="50" placeholder="Type your request..."></textarea>
     <button onclick="sendQuote()">Send</button>
     <pre id="response"></pre>
   </div>
 
-  <script src="quote.js?v=119"></script>
+  <!-- Load logic -->
+  <script src="quote.js?v=120"></script>
 </body>
 </html>
