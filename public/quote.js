@@ -37,6 +37,7 @@ window.addEventListener("load", () => {
     });
   });
 });
+
 async function sendQuote() {
   const input = document.getElementById("userInput").value;
   if (!input.trim()) {
@@ -61,6 +62,7 @@ async function sendQuote() {
   console.log("📤 Sending payload:", payload);
 
   try {
+    // Send to GPT backend
     const res = await fetch("https://waltjrv7.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,17 +83,19 @@ async function sendQuote() {
       document.getElementById("response").textContent = "No reply received.";
     }
 
-    // ✅ Make webhook call (replace with your actual URL if not already)
-    await fetch("https://hook.us1.make.com/YOUR-REAL-MAKE-WEBHOOK", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, gpt_reply: data.reply })
-    });
+    // 🔁 Send to your actual Make webhook
+    try {
+      await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, gpt_reply: data.reply })
+      });
+    } catch (hookErr) {
+      console.warn("⚠️ Failed to send webhook:", hookErr);
+    }
 
   } catch (err) {
     console.error("❌ Error in sendQuote:", err);
     document.getElementById("response").textContent = "Error sending quote. Check console.";
   }
 }
-
-
