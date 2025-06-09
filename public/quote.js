@@ -48,7 +48,7 @@ async function sendQuote() {
   const payload = {
     person_uid: user.Uid,
     email: user.Email,
-    account_uid: user.AccountUid,
+    account_uid: user.AccountUid || "",
     company_name: user.Account?.Name || "",
     message: input
   };
@@ -76,8 +76,8 @@ async function sendQuote() {
       document.getElementById("response").textContent = "No reply received.";
     }
 
-    // Optional: forward to Make webhook
-    await fetch("await fetch("https://hook.us1.make.com/abc123youractualwebhookurl", {", {
+    // ✅ Make webhook - replace this with your actual webhook URL
+    await fetch("https://hook.us1.make.com/YOUR-REAL-MAKE-WEBHOOK", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...payload, gpt_reply: data.reply })
@@ -88,3 +88,4 @@ async function sendQuote() {
     document.getElementById("response").textContent = "Error sending quote. Check console.";
   }
 }
+
