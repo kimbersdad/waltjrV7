@@ -22,17 +22,23 @@ async function handleInput() {
       body: JSON.stringify({ message: value })
     });
 
-  try {
-  const data = await res.json();
-  addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
-} catch (err) {
-  console.warn("Fallback triggered, no JSON reply:", err);
-  addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
-}
+    try {
+      const data = await res.json();
+      addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
+    } catch (jsonErr) {
+      console.warn("Fallback triggered: Not valid JSON:", jsonErr);
+      addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
+    }
 
+  } catch (err) {
+    console.error("❌ Webhook error:", err);
+    addMessage("❌ Something went wrong connecting to Walt Jr.", "bot");
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const inputBox = document.getElementById("userInput");
+
   inputBox.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
