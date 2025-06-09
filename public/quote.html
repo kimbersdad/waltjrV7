@@ -4,12 +4,6 @@
   <meta charset="UTF-8" />
   <title>Walt Jr. Quote Request</title>
 
-  <!-- Outseta Setup -->
-  <script>
-    var o_options = { domain: "waltjr.outseta.com" };
-  </script>
-  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -62,15 +56,21 @@
       max-width: 600px;
     }
   </style>
+
+  <!-- ✅ Load Outseta First -->
+  <script>
+    var o_options = { domain: "waltjr.outseta.com" };
+  </script>
+  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
 </head>
 <body>
 
-  <!-- Login Section -->
+  <!-- Login -->
   <div id="login-container">
     <button id="login-btn">Log in to request a quote</button>
   </div>
 
-  <!-- Chat Section -->
+  <!-- Chat -->
   <div id="chat-container">
     <button id="logout-btn">Logout</button>
     <h2>Request a Quote</h2>
@@ -79,7 +79,7 @@
     <pre id="response"></pre>
   </div>
 
-  <!-- Load Chat Logic -->
-  <script src="quote.js?v=113"></script>
+  <!-- ✅ Load JS Logic Last -->
+  <script src="quote.js?v=114"></script>
 </body>
 </html>
