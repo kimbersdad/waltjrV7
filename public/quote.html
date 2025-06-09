@@ -2,54 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Walt Jr. Quote Chatbot</title>
-
+  <title>Walt Jr. Quote Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    #login-container, #chat-container {
-      display: none;
+      background: #f4f4f4;
+      display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
+      margin: 0;
     }
-
+    #chat-container {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    #chat-log {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .message {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+    .bot {
+      background: #e1ecf4;
+    }
+    .user {
+      background: #d2f8d2;
+      text-align: right;
+    }
+    input[type="text"] {
+      width: calc(100% - 100px);
+      padding: 10px;
+      font-size: 16px;
+    }
     button {
-      padding: 1rem;
-      font-size: 1.2rem;
-      cursor: pointer;
+      width: 80px;
+      padding: 10px;
+      font-size: 16px;
+      margin-left: 10px;
     }
   </style>
-
-  <!-- Outseta load -->
-  <script>
-    var o_options = { domain: "waltjr.outseta.com" };
-  </script>
-  <script src="https://cdn.outseta.com/outseta.min.js" data-options="o_options"></script>
 </head>
 <body>
-
-  <!-- Login UI -->
-  <div id="login-container">
-    <h2>Please Log In</h2>
-    <button id="login-btn">Log in to request a quote</button>
+<div id="chat-container">
+  <div id="chat-log"></div>
+  <div style="display: flex;">
+    <input type="text" id="userInput" placeholder="Type your answer..." />
+    <button onclick="handleInput()">Send</button>
   </div>
+</div>
 
-  <!-- Chat UI -->
-  <div id="chat-container">
-    <button id="logout-btn">Logout</button>
-    <h2>Chat Mode</h2>
-    <textarea id="userInput" rows="4" cols="50" placeholder="Type your request..."></textarea>
-    <button onclick="sendQuote()">Send</button>
-    <pre id="response"></pre>
-  </div>
+<script>
+const questions = [
+  "What size banner do you need? (e.g., 3x5 ft)",
+  "What material would you like? (vinyl, mesh, fabric, etc.)",
+  "Will you provide artwork, or do you need design help?",
+  "Are there specific colors or full-color printing required?",
+  "How many banners do you need?",
+  "Do you need grommets, pole pockets, or hems?",
+  "Will the banner be used indoors or outdoors?",
+  "When do you need the banner by?",
+  "Where should it be shipped or picked up?"
+];
 
-  <!-- Load logic -->
-  <script src="quote.js?v=120"></script>
+let currentStep = 0;
+let quoteData = {};
+
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.innerText = text;
+  document.getElementById("chat-log").appendChild(msg);
+  document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
+}
+
+function handleInput() {
+  const input = document.getElementById("userInput");
+  const value = input.value.trim();
+  if (!value) return;
+
+  addMessage(value, "user");
+  const key = questions[currentStep].split(" ")[0].toLowerCase();
+  quoteData[key] = value;
+
+  input.value = "";
+  currentStep++;
+
+  if (currentStep < questions.length) {
+    setTimeout(() => addMessage(questions[currentStep], "bot"), 300);
+  } else {
+    sendQuote();
+  }
+}
+
+function startChat() {
+  addMessage("Hi, I'm Walt Jr. Let's build your banner quote.", "bot");
+  addMessage(questions[currentStep], "bot");
+}
+
+async function sendQuote() {
+  addMessage("Thanks! Generating your quote now...", "bot");
+
+  try {
+    const res = await fetch("https://waltjrv7.onrender.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: Object.values(quoteData).join("\n") })
+    });
+    const data = await res.json();
+    addMessage(data.reply, "bot");
+
+    // Optional: forward to Make
+    await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(quoteData)
+    });
+
+  } catch (err) {
+    addMessage("❌ There was a problem generating your quote. Please try again.", "bot");
+    console.error(err);
+  }
+}
+
+// Start conversation
+startChat();
+</script>
 </body>
 </html>
