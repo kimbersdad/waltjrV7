@@ -77,7 +77,7 @@ async function sendQuote() {
     }
 
     // Optional: forward to Make webhook
-    await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
+    await fetch("await fetch("https://hook.us1.make.com/abc123youractualwebhookurl", {", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...payload, gpt_reply: data.reply })
