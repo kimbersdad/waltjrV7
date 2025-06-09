@@ -39,7 +39,10 @@
       background: #d2f8d2;
       text-align: right;
     }
-    input[type="text"] {
+    #chat-input {
+      display: flex;
+    }
+    #userInput {
       width: calc(100% - 100px);
       padding: 10px;
       font-size: 16px;
@@ -53,96 +56,60 @@
   </style>
 </head>
 <body>
-<div id="chat-container">
-  <div id="chat-log"></div>
-  <div style="display: flex;">
-    <input type="text" id="userInput" placeholder="Type your answer..." />
-    <button onclick="handleInput()">Send</button>
+  <div id="chat-container">
+    <div id="chat-log"></div>
+    <div id="chat-input">
+      <input type="text" id="userInput" placeholder="Type your message..." />
+      <button onclick="handleInput()">Send</button>
+    </div>
   </div>
-</div>
 
-<script>
-const questions = [
-  "What size banner do you need? (e.g., 3x5 ft)",
-  "What material would you like? (vinyl, mesh, fabric, etc.)",
-  "Will you provide artwork, or do you need design help?",
-  "Are there specific colors or full-color printing required?",
-  "How many banners do you need?",
-  "Do you need grommets, pole pockets, or hems?",
-  "Will the banner be used indoors or outdoors?",
-  "When do you need the banner by?",
-  "Where should it be shipped or picked up?"
-];
+  <script>
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.innerText = text;
+      document.getElementById("chat-log").appendChild(msg);
+      document.getElementById("chat-log").scrollTop =
+        document.getElementById("chat-log").scrollHeight;
+    }
 
-let currentStep = 0;
-let quoteData = {};
+    async function handleInput() {
+      const input = document.getElementById("userInput");
+      const value = input.value.trim();
+      if (!value) return;
 
-function addMessage(text, sender) {
-  const msg = document.createElement("div");
-  msg.className = `message ${sender}`;
-  msg.innerText = text;
-  document.getElementById("chat-log").appendChild(msg);
-  document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
-}
+      addMessage(value, "user");
+      input.value = "";
 
-function handleInput() {
-  const input = document.getElementById("userInput");
-  const value = input.value.trim();
-  if (!value) return;
+      try {
+        const res = await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: value })
+        });
 
-  addMessage(value, "user");
-  const key = questions[currentStep].split(" ")[0].toLowerCase();
-  quoteData[key] = value;
+        const data = await res.json();
+        addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
 
-  input.value = "";
-  currentStep++;
+      } catch (err) {
+        console.error("❌ Webhook error:", err);
+        addMessage("❌ Something went wrong connecting to Walt Jr.", "bot");
+      }
+    }
 
-  if (currentStep < questions.length) {
-    setTimeout(() => addMessage(questions[currentStep], "bot"), 300);
-  } else {
-    sendQuote();
-  }
-}
+    // Allow Enter to submit
+    document.addEventListener("DOMContentLoaded", () => {
+      const inputBox = document.getElementById("userInput");
+      inputBox.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          handleInput();
+        }
+      });
 
-function startChat() {
-  addMessage(questions[currentStep], "bot");
-}
-
-async function sendQuote() {
-  addMessage("Thanks! Generating your quote now...", "bot");
-
-  try {
-    const res = await fetch("https://waltjrv7.onrender.com/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: Object.values(quoteData).join("\n") })
+      addMessage("Hi, this is Walt Jr. Your favorite estimating tool! How can I help you today?", "bot");
     });
-    const data = await res.json();
-    addMessage(data.reply, "bot");
-
-    await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(quoteData)
-    });
-
-  } catch (err) {
-    addMessage("❌ There was a problem generating your quote. Please try again.", "bot");
-    console.error(err);
-  }
-}
-
-// Start a fresh chat every page load
-startChat();
-
-// Add keyboard support for Enter key
-const inputBox = document.getElementById("userInput");
-inputBox.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    handleInput();
-  }
-});
-</script>
+  </script>
 </body>
 </html>
