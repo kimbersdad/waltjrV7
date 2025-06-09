@@ -16,7 +16,7 @@ async function handleInput() {
   input.value = "";
 
   try {
-    const res = await fetch("https://hook.us2.make.com/wqlf334cjct4aoi34wydkfa307mlgl2d", {
+    const res = await fetch("https://hook.us2.make.com/d2tg9hh14d7w27x6iau9iafu9bvfj1wf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: value })
