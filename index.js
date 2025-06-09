@@ -19,18 +19,18 @@ app.post("/chat", async (req, res) => {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: "You are Walt Jr., an AI that helps people generate custom sign quotes." },
+        { role: "system", content: "You are Walt Jr., a helpful signage quote assistant." },
         { role: "user", content: message }
       ]
     });
 
     res.json({ reply: completion.choices[0].message.content });
   } catch (err) {
-    console.error("GPT error:", err);
-    res.status(500).json({ error: "OpenAI error", details: err.message });
+    console.error("OpenAI Error:", err.message);
+    res.status(500).json({ error: "GPT error", details: err.message });
   }
 });
 
 app.listen(3000, () => {
-  console.log("Server running on port 3000");
+  console.log("✅ Server running on port 3000");
 });
