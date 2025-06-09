@@ -37,13 +37,18 @@ window.addEventListener("load", () => {
     });
   });
 });
-
 async function sendQuote() {
   const input = document.getElementById("userInput").value;
-  if (!input.trim()) return alert("Please enter a message.");
+  if (!input.trim()) {
+    alert("Please enter a message.");
+    return;
+  }
 
   const user = await Outseta.getUser();
-  if (!user) return alert("You must be logged in.");
+  if (!user) {
+    alert("You must be logged in.");
+    return;
+  }
 
   const payload = {
     person_uid: user.Uid,
@@ -76,7 +81,7 @@ async function sendQuote() {
       document.getElementById("response").textContent = "No reply received.";
     }
 
-    // ✅ Make webhook - replace this with your actual webhook URL
+    // ✅ Make webhook call (replace with your actual URL if not already)
     await fetch("https://hook.us1.make.com/YOUR-REAL-MAKE-WEBHOOK", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -88,4 +93,5 @@ async function sendQuote() {
     document.getElementById("response").textContent = "Error sending quote. Check console.";
   }
 }
+
 
