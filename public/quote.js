@@ -1,107 +1,72 @@
-console.log("✨ quote.js is running");
+const questions = [
+  "What size banner do you need? (e.g., 3x5 ft)",
+  "What material would you like? (vinyl, mesh, fabric, etc.)",
+  "Will you provide artwork, or do you need design help?",
+  "Are there specific colors or full-color printing required?",
+  "How many banners do you need?",
+  "Do you need grommets, pole pockets, or hems?",
+  "Will the banner be used indoors or outdoors?",
+  "When do you need the banner by?",
+  "Where should it be shipped or picked up?"
+];
 
-window.addEventListener("load", () => {
-  const loginBox = document.getElementById("login-container");
-  const chatBox = document.getElementById("chat-container");
-  const loginBtn = document.getElementById("login-btn");
-  const logoutBtn = document.getElementById("logout-btn");
+let currentStep = 0;
+let quoteData = {};
 
-  const showChat = () => {
-    chatBox.style.display = "flex";
-    loginBox.style.display = "none";
-    console.log("✅ Showing chat container");
-  };
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.innerText = text;
+  document.getElementById("chat-log").appendChild(msg);
+  document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight;
+}
 
-  const showLogin = () => {
-    chatBox.style.display = "none";
-    loginBox.style.display = "flex";
-    console.log("✅ Showing login container");
-  };
+function handleInput() {
+  const input = document.getElementById("userInput");
+  const value = input.value.trim();
+  if (!value) return;
 
-  // Initial login check
-  if (window.Outseta && Outseta.getUser) {
-    Outseta.getUser()
-      .then(user => user ? showChat() : showLogin())
-      .catch(showLogin);
+  addMessage(value, "user");
+  const key = questions[currentStep].split(" ")[0].toLowerCase();
+  quoteData[key] = value;
 
-    Outseta.on("accessToken.set", showChat);
-    Outseta.on("accessToken.removed", showLogin);
+  input.value = "";
+  currentStep++;
+
+  if (currentStep < questions.length) {
+    setTimeout(() => addMessage(questions[currentStep], "bot"), 300);
   } else {
-    console.warn("⚠️ Outseta not ready");
-    showLogin();
+    sendQuote();
   }
+}
 
-  // Login button click
-  loginBtn?.addEventListener("click", () => {
-    if (window.Outseta?.toggleLogin) {
-      Outseta.toggleLogin();
-    } else {
-      window.location.href = "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
-    }
-  });
+function startChat() {
+  addMessage("👋 Hi, I'm Walt Jr. Let's build your banner quote step-by-step.", "bot");
+  addMessage(questions[currentStep], "bot");
+}
 
-  // Logout button click
-  logoutBtn?.addEventListener("click", () => {
-    Outseta.logout().then(() => {
-      window.location.href = "https://waltjr.netlify.app/quote.html";
-    });
-  });
-});
-
-// ✅ GPT + Webhook Logic
 async function sendQuote() {
-  const input = document.getElementById("userInput").value;
-  const responseBox = document.getElementById("response");
-
-  if (!input.trim()) {
-    alert("Please enter a message.");
-    return;
-  }
-
-  responseBox.textContent = "🧠 Thinking...";
-
-  const user = await Outseta.getUser();
-  if (!user) {
-    alert("Please log in first.");
-    return;
-  }
-
-  const payload = {
-    person_uid: user.Uid,
-    email: user.Email,
-    account_uid: user.AccountUid || "",
-    company_name: user.Account?.Name || "",
-    message: input
-  };
-
-  console.log("📤 Sending to GPT:", payload);
+  addMessage("📦 Got it. Generating your quote now...", "bot");
 
   try {
-    // GPT backend request
     const res = await fetch("https://waltjrv7.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ message: Object.values(quoteData).join("\n") })
     });
-
-    if (!res.ok) {
-      throw new Error(`GPT fetch failed: ${res.status}`);
-    }
-
     const data = await res.json();
-    console.log("🤖 GPT response:", data);
+    addMessage(data.reply, "bot");
 
-    responseBox.textContent = data.reply || "No reply from GPT.";
-
-    // Make.com webhook (send quote + GPT reply)
     await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, gpt_reply: data.reply })
+      body: JSON.stringify(quoteData)
     });
 
   } catch (err) {
-    console.error("❌ Error in sendQuote:", err);
-    responseBox.textContent = "❌ Something went wrong. See console.";
+    addMessage("❌ There was a problem generating your quote. Please try again.", "bot");
+    console.error(err);
   }
 }
+
+startChat();
