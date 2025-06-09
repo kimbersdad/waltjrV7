@@ -16,18 +16,17 @@ async function handleInput() {
   input.value = "";
 
   try {
-    const res = await fetch("https://hook.us2.make.com/cnnrvbj8inymtg58fnua7n36hi13bj37", {
+    const res = await fetch("https://hook.us2.make.com/wqlf334cjct4aoi34wydkfa307mlgl2d", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: value })
     });
 
-    try {
-      const data = await res.json();
-      addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
-    } catch (jsonErr) {
-      console.warn("Fallback triggered: Not valid JSON:", jsonErr);
-      addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
+    const data = await res.json();
+    if (data.reply) {
+      addMessage(data.reply, "bot");
+    } else {
+      addMessage("🧠 Walt Jr. is thinking...", "bot");
     }
 
   } catch (err) {
