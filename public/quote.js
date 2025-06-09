@@ -22,15 +22,13 @@ async function handleInput() {
       body: JSON.stringify({ message: value })
     });
 
-    const text = await res.text();
-    console.log("✅ Webhook response:", text);
-
-    addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
-
-  } catch (err) {
-    console.error("❌ Webhook error:", err);
-    addMessage("❌ Something went wrong connecting to Walt Jr.", "bot");
-  }
+  try {
+  const data = await res.json();
+  addMessage(data.reply || "🧠 Walt Jr. is thinking...", "bot");
+} catch (err) {
+  console.warn("Fallback triggered, no JSON reply:", err);
+  addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
+}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
