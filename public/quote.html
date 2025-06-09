@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Walt Jr. Quote Request</title>
 
-  <!-- Outseta Config (Must Be Before Script) -->
+  <!-- Outseta Setup -->
   <script>
     var o_options = { domain: "waltjr.outseta.com" };
   </script>
@@ -24,6 +24,7 @@
       align-items: center;
       height: 100vh;
       flex-direction: column;
+      text-align: center;
     }
 
     textarea {
@@ -64,12 +65,12 @@
 </head>
 <body>
 
-  <!-- Login UI -->
+  <!-- Login Section -->
   <div id="login-container">
     <button id="login-btn">Log in to request a quote</button>
   </div>
 
-  <!-- Chat UI -->
+  <!-- Chat Section -->
   <div id="chat-container">
     <button id="logout-btn">Logout</button>
     <h2>Request a Quote</h2>
@@ -78,6 +79,7 @@
     <pre id="response"></pre>
   </div>
 
-  <script src="quote.js?v=100"></script>
+  <!-- Load Chat Logic -->
+  <script src="quote.js?v=113"></script>
 </body>
 </html>
