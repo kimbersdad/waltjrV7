@@ -19,15 +19,16 @@ app.post("/chat", async (req, res) => {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: "You are Walt Jr., a helpful signage quote assistant." },
+        { role: "system", content: "You are Walt Jr., a helpful assistant for signage quote requests." },
         { role: "user", content: message }
       ]
     });
 
-    res.json({ reply: completion.choices[0].message.content });
+    const reply = completion.choices[0].message.content;
+    res.json({ reply });
   } catch (err) {
-    console.error("OpenAI Error:", err.message);
-    res.status(500).json({ error: "GPT error", details: err.message });
+    console.error("OpenAI error:", err);
+    res.status(500).json({ error: "OpenAI error", details: err.message });
   }
 });
 
