@@ -29,7 +29,7 @@ async function handleInput() {
   console.warn("Fallback triggered, no JSON reply:", err);
   addMessage("📨 Your response has been received. A team member or Walt Jr. will reply shortly.", "bot");
 }
-}
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const inputBox = document.getElementById("userInput");
