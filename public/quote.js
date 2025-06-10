@@ -66,7 +66,6 @@ async function sendQuote() {
     message: input
   };
 
-  // Ask GPT for reply
   const res = await fetch("https://waltjrv7.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -77,22 +76,16 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
-  // Try to send to Make with debug
-  try {
-    const makePayload = { ...payload, gpt_reply: reply };
-    const json = JSON.stringify(makePayload);
+  const fullPayload = { ...payload, gpt_reply: reply };
 
-    console.log("✅ JSON looks good:", json);
+  // ✅ Encode entire payload to Base64 (safe for JSON transport)
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(fullPayload))));
 
-    await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: json
-    });
-  } catch (err) {
-    console.error("❌ JSON.stringify failed!", err);
-    console.log("🧪 Payload object:", payload);
-    console.log("🧪 GPT reply:", reply);
-    alert("🚨 JSON Error: " + err.message + "\nCheck console for details.");
-  }
+  console.log("🚀 Sending Base64 to Make:", encoded);
+
+  await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ encoded })
+  });
 }
