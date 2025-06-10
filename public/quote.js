@@ -76,9 +76,12 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
+  // ✅ Send to Make using Blob to avoid JSON errors
+  const makePayload = { ...payload, gpt_reply: reply };
+
   await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, gpt_reply: reply })
+    body: new Blob([JSON.stringify(makePayload)], { type: "application/json" })
   });
 }
