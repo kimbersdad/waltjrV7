@@ -49,7 +49,6 @@ window.addEventListener("load", () => {
     });
   });
 });
-
 async function sendQuote() {
   const inputRaw = document.getElementById("userInput").value;
   const input = sanitize(inputRaw);
@@ -76,17 +75,18 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
-  // ✅ Combine full payload and log it
   const makePayload = { ...payload, gpt_reply: reply };
-  const rawJson = JSON.stringify(makePayload);
 
-  // 🐞 Log raw JSON so we can debug
-  console.log("🚨 Sending to Make:", rawJson);
+  // ✅ Encode entire payload to Base64
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(makePayload))));
 
-  // ✅ Send using Blob
+  console.log("🚨 Sending Base64:", encoded);
+
+  // ✅ Send to Make as a simple JSON object with a string
   await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: new Blob([rawJson], { type: "application/json" })
+    body: JSON.stringify({ encoded })
   });
 }
+
