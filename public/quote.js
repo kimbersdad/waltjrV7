@@ -76,7 +76,7 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
-  await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
+  await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...payload, gpt_reply: reply })
