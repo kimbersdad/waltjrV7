@@ -1,8 +1,8 @@
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
   return String(str)
-    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove bad control chars
-    .replace(/\r?\n|\r/g, " ")              // replace newlines with space
+    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
+    .replace(/\r?\n|\r/g, " ")              // replace newlines
     .trim();
 }
 
@@ -49,6 +49,7 @@ window.addEventListener("load", () => {
     });
   });
 });
+
 async function sendQuote() {
   const inputRaw = document.getElementById("userInput").value;
   const input = sanitize(inputRaw);
@@ -65,6 +66,7 @@ async function sendQuote() {
     message: input
   };
 
+  // Ask GPT for reply
   const res = await fetch("https://waltjrv7.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -75,18 +77,22 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
-  const makePayload = { ...payload, gpt_reply: reply };
+  // Try to send to Make with debug
+  try {
+    const makePayload = { ...payload, gpt_reply: reply };
+    const json = JSON.stringify(makePayload);
 
-  // ✅ Encode entire payload to Base64
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(makePayload))));
+    console.log("✅ JSON looks good:", json);
 
-  console.log("🚨 Sending Base64:", encoded);
-
-  // ✅ Send to Make as a simple JSON object with a string
-  await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ encoded })
-  });
+    await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: json
+    });
+  } catch (err) {
+    console.error("❌ JSON.stringify failed!", err);
+    console.log("🧪 Payload object:", payload);
+    console.log("🧪 GPT reply:", reply);
+    alert("🚨 JSON Error: " + err.message + "\nCheck console for details.");
+  }
 }
-
