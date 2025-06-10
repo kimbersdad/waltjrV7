@@ -1,8 +1,8 @@
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
-  return str
-    ?.replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
-    .replace(/\r?\n|\r/g, " ")              // newlines to space
+  return String(str)
+    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove bad control chars
+    .replace(/\r?\n|\r/g, " ")              // replace newlines with space
     .trim();
 }
 
@@ -22,7 +22,6 @@ window.addEventListener("load", () => {
     loginBox.style.display = "flex";
   };
 
-  // Wait for Outseta to load, then check login state
   if (window.Outseta && Outseta.getUser) {
     Outseta.getUser()
       .then(user => user ? showChat() : showLogin())
@@ -34,7 +33,6 @@ window.addEventListener("load", () => {
     showLogin();
   }
 
-  // Login button
   loginBtn?.addEventListener("click", () => {
     if (window.Outseta && typeof Outseta.toggleLogin === "function") {
       Outseta.toggleLogin();
@@ -44,7 +42,6 @@ window.addEventListener("load", () => {
     }
   });
 
-  // Logout button – redirect back to login screen
   logoutBtn?.addEventListener("click", () => {
     Outseta.logout().then(() => {
       window.location.href =
@@ -53,7 +50,6 @@ window.addEventListener("load", () => {
   });
 });
 
-// Send quote to backend and webhook
 async function sendQuote() {
   const inputRaw = document.getElementById("userInput").value;
   const input = sanitize(inputRaw);
@@ -63,14 +59,13 @@ async function sendQuote() {
   if (!user) return alert("You must be logged in.");
 
   const payload = {
-    person_uid: user.Uid,
-    email: user.Email,
-    account_uid: user.AccountUid,
-    company_name: user.Account?.Name || "",
+    person_uid: sanitize(user.Uid),
+    email: sanitize(user.Email),
+    account_uid: sanitize(user.AccountUid),
+    company_name: sanitize(user.Account?.Name || ""),
     message: input
   };
 
-  // Send to GPT backend
   const res = await fetch("https://waltjrv7.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -81,7 +76,6 @@ async function sendQuote() {
   const reply = sanitize(data.reply);
   document.getElementById("response").textContent = reply;
 
-  // Forward to Make webhook
   await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
