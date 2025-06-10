@@ -82,13 +82,18 @@ async function sendQuote() {
 
   console.log("🚀 Sending Base64 to Make:", encoded);
 
-  const makeRes = await fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ encoded })
-  });
+  fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ encoded })
+})
+.then(res => {
+  console.log("📬 Make response:", res.status, res.statusText);
+})
+.catch(err => {
+  console.error("❌ Make webhook failed!", err);
+});
 
-  console.log("📬 Make response status:", makeRes.status);
 
   if (!makeRes.ok) {
     console.error("❌ Make webhook failed!", await makeRes.text());
