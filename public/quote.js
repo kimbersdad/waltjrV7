@@ -1,49 +1,90 @@
-function addMessage(text, sender) {
-  const msg = document.createElement("div");
-  msg.className = `message ${sender}`;
-  msg.innerText = text;
-  document.getElementById("chat-log").appendChild(msg);
-  document.getElementById("chat-log").scrollTop =
-    document.getElementById("chat-log").scrollHeight;
+// Sanitize helper – strips control characters and newlines
+function sanitize(str) {
+  return str
+    ?.replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
+    .replace(/\r?\n|\r/g, " ")              // newlines to space
+    .trim();
 }
 
-async function handleInput() {
-  const input = document.getElementById("userInput");
-  const value = input.value.trim();
-  if (!value) return;
+window.addEventListener("load", () => {
+  const loginBox = document.getElementById("login-container");
+  const chatBox = document.getElementById("chat-container");
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
 
-  addMessage(value, "user");
-  input.value = "";
+  const showChat = () => {
+    chatBox.style.display = "block";
+    loginBox.style.display = "none";
+  };
 
-  try {
-    const res = await fetch("https://hook.us2.make.com/d2tg9hh14d7w27x6iau9iafu9bvfj1wf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: value })
-    });
+  const showLogin = () => {
+    chatBox.style.display = "none";
+    loginBox.style.display = "flex";
+  };
 
-    const data = await res.json();
-    if (data.reply) {
-      addMessage(data.reply, "bot");
-    } else {
-      addMessage("🧠 Walt Jr. is thinking...", "bot");
-    }
+  // Wait for Outseta to load, then check login state
+  if (window.Outseta && Outseta.getUser) {
+    Outseta.getUser()
+      .then(user => user ? showChat() : showLogin())
+      .catch(showLogin);
 
-  } catch (err) {
-    console.error("❌ Webhook error:", err);
-    addMessage("❌ Something went wrong connecting to Walt Jr.", "bot");
+    Outseta.on("accessToken.set", showChat);
+    Outseta.on("accessToken.removed", showLogin);
+  } else {
+    showLogin();
   }
-}
 
-document.addEventListener("DOMContentLoaded", () => {
-  const inputBox = document.getElementById("userInput");
-
-  inputBox.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleInput();
+  // Login button
+  loginBtn?.addEventListener("click", () => {
+    if (window.Outseta && typeof Outseta.toggleLogin === "function") {
+      Outseta.toggleLogin();
+    } else {
+      window.location.href =
+        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
     }
   });
 
-  addMessage("Hi, this is Walt Jr. Your favorite estimating tool! How can I help you today?", "bot");
+  // Logout button – redirect back to login screen
+  logoutBtn?.addEventListener("click", () => {
+    Outseta.logout().then(() => {
+      window.location.href =
+        "https://waltjr.outseta.com/auth?widgetMode=login&redirectUrl=https://waltjr.netlify.app/quote.html";
+    });
+  });
 });
+
+// Send quote to backend and webhook
+async function sendQuote() {
+  const inputRaw = document.getElementById("userInput").value;
+  const input = sanitize(inputRaw);
+  if (!input) return alert("Please enter a message.");
+
+  const user = await Outseta.getUser();
+  if (!user) return alert("You must be logged in.");
+
+  const payload = {
+    person_uid: user.Uid,
+    email: user.Email,
+    account_uid: user.AccountUid,
+    company_name: user.Account?.Name || "",
+    message: input
+  };
+
+  // Send to GPT backend
+  const res = await fetch("https://waltjrv7.onrender.com/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  const reply = sanitize(data.reply);
+  document.getElementById("response").textContent = reply;
+
+  // Forward to Make webhook
+  await fetch("https://hook.us1.make.com/YOUR-MAKE-WEBHOOK", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, gpt_reply: reply })
+  });
+}
