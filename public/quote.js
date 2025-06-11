@@ -83,7 +83,7 @@ async function sendQuote() {
   console.log("🚀 Sending Base64 to Make:", encoded);
 
   // ✅ No JSON parsing of response
-  fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
+  fetch("https://hook.us2.make.com/d2tg9hh14d7w27x6iau9iafu9bvfj1wf", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ encoded })
