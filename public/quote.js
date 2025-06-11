@@ -1,8 +1,8 @@
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
   return String(str)
-    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
-    .replace(/\r?\n|\r/g, " ")              // replace newlines
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\r?\n|\r/g, " ")
     .trim();
 }
 
