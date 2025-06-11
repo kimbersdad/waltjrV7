@@ -1,9 +1,8 @@
-console.log("🔥 Running updated quote.js v144");
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
   return String(str)
-    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
-    .replace(/\r?\n|\r/g, " ")              // replace newlines
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\r?\n|\r/g, " ")
     .trim();
 }
 
@@ -82,17 +81,17 @@ async function sendQuote() {
 
   console.log("🚀 Sending Base64 to Make:", encoded);
 
-  // ✅ No JSON parsing of response
+  // ✅ Send to Make, don't parse the response as JSON
   fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ encoded })
   })
-  .then(res => res.text())
-  .then(text => {
-    console.log("📬 Make webhook response (plain text):", text);
-  })
-  .catch(err => {
-    console.error("❌ Webhook send error:", err);
-  });
+    .then(res => res.text())
+    .then(text => {
+      console.log("📬 Make webhook response:", text);
+    })
+    .catch(err => {
+      console.error("❌ Webhook error:", err);
+    });
 }
