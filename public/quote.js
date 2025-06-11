@@ -81,7 +81,7 @@ async function sendQuote() {
 
   console.log("🚀 Sending Base64 to Make:", encoded);
 
-  // ✅ Send to Make, don't parse the response as JSON
+  // ✅ Webhook call — no JSON parsing
   fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
