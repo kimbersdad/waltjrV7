@@ -1,8 +1,8 @@
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
   return String(str)
-    .replace(/[\u0000-\u001F\u007F]/g, "")
-    .replace(/\r?\n|\r/g, " ")
+    .replace(/[\u0000-\u001F\u007F]/g, "")  // remove control chars
+    .replace(/\r?\n|\r/g, " ")              // replace newlines
     .trim();
 }
 
@@ -81,6 +81,7 @@ async function sendQuote() {
 
   console.log("🚀 Sending Base64 to Make:", encoded);
 
+  // ✅ No JSON parsing of response
   fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -88,9 +89,9 @@ async function sendQuote() {
   })
   .then(res => res.text())
   .then(text => {
-    console.log("📬 Make webhook response:", text);
+    console.log("📬 Make webhook response (plain text):", text);
   })
   .catch(err => {
-    console.error("❌ Webhook failed to send!", err);
+    console.error("❌ Webhook send error:", err);
   });
 }
