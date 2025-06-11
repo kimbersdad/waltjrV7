@@ -1,3 +1,4 @@
+console.log("🔥 Running updated quote.js v144");
 // Sanitize helper – strips control characters and newlines
 function sanitize(str) {
   return String(str)
