@@ -81,14 +81,14 @@ async function sendQuote() {
 
   console.log("🚀 Sending Base64 to Make:", encoded);
 
-  // ✅ Final Make webhook send, plain-text-safe
   fetch("https://hook.us2.make.com/lxfsipcjp97stuv689jw4mph8e1zyiv8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ encoded })
   })
-  .then(res => {
-    console.log("📬 Make webhook response:", res.status, res.statusText);
+  .then(res => res.text())
+  .then(text => {
+    console.log("📬 Make webhook response:", text);
   })
   .catch(err => {
     console.error("❌ Webhook failed to send!", err);
